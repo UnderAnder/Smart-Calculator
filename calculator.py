@@ -5,6 +5,9 @@ def main():
         if user_input == '/exit':
             print('Bye!')
             exit()
+        if user_input == '/help':
+            print('Smart calculator, but not yet')
+            continue
         if user_input:
             print(sum(int(x) for x in user_input.split()))
 
