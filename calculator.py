@@ -1,26 +1,51 @@
+class Calc:
+    variables = {}
 
-def calc(user_input):
-    nums = ''.join(x for x in user_input.split())
-    try:
-        print(eval(nums))
-    except Exception:
-        print('Invalid expression')
+    @staticmethod
+    def calc(user_input):
+        identifier = user_input.split()[0]
+        if not identifier.isalpha() and not identifier.isnumeric():
+            print('Invalid identifier')
+            return
+        try:
+            nums = ''.join(Calc.variables.get(x) if x.isalpha() else x for x in user_input.split())
+            print(eval(nums))
+        except TypeError:
+            print('Unknown variable')
+        except Exception:
+            print('Invalid expression')
+
+    @staticmethod
+    def declare_variable(user_input):
+        var, eq, val = user_input.partition('=')
+        var, val = var.strip(), val.strip()
+        if not var.isalpha():
+            print('Invalid identifier')
+            return
+        if not (val.isalpha() or val.isnumeric()) or\
+                val.isalpha() and not Calc.variables.get(val):
+            print('Invalid assignment')
+            return
+        Calc.variables[var] = val if val.isnumeric() else Calc.variables.get(val)
 
 
 def main():
+    calc = Calc()
     while True:
         user_input = input()
         if user_input == '/exit':
             print('Bye!')
             exit()
         elif user_input == '/help':
-            print('Smart calculator, but not yet')
+            print('A bit of a smart calculator')
             continue
         elif user_input.startswith('/'):
             print('Unknown command')
             continue
-        if user_input:
-            calc(user_input)
+        elif user_input.find('=') != -1:
+            calc.declare_variable(user_input)
+        elif user_input:
+            calc.calc(user_input)
 
 
 if __name__ == '__main__':
