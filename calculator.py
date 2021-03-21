@@ -1,4 +1,9 @@
 
+def calc(user_input):
+    nums = ''.join(x for x in user_input.split())
+    print(eval(nums))
+
+
 def main():
     while True:
         user_input = input()
@@ -9,7 +14,7 @@ def main():
             print('Smart calculator, but not yet')
             continue
         if user_input:
-            print(sum(int(x) for x in user_input.split()))
+            calc(user_input)
 
 
 if __name__ == '__main__':
