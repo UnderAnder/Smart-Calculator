@@ -1,7 +1,10 @@
 
 def calc(user_input):
     nums = ''.join(x for x in user_input.split())
-    print(eval(nums))
+    try:
+        print(eval(nums))
+    except Exception:
+        print('Invalid expression')
 
 
 def main():
@@ -10,8 +13,11 @@ def main():
         if user_input == '/exit':
             print('Bye!')
             exit()
-        if user_input == '/help':
+        elif user_input == '/help':
             print('Smart calculator, but not yet')
+            continue
+        elif user_input.startswith('/'):
+            print('Unknown command')
             continue
         if user_input:
             calc(user_input)
