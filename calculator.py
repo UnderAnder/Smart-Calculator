@@ -4,12 +4,14 @@ class Calc:
     @staticmethod
     def calc(user_input):
         identifier = user_input.split()[0]
+        if user_input.find('//') != -1:
+            print('Invalid expression')
         if not identifier.isalpha() and not identifier.isnumeric():
             print('Invalid identifier')
             return
         try:
             nums = ''.join(Calc.variables.get(x) if x.isalpha() else x for x in user_input.split())
-            print(eval(nums))
+            print(int(eval(nums)))
         except TypeError:
             print('Unknown variable')
         except Exception:
@@ -22,7 +24,7 @@ class Calc:
         if not var.isalpha():
             print('Invalid identifier')
             return
-        if not (val.isalpha() or val.isnumeric()) or\
+        if not (val.isalpha() or val.isnumeric()) or \
                 val.isalpha() and not Calc.variables.get(val):
             print('Invalid assignment')
             return
@@ -37,7 +39,7 @@ def main():
             print('Bye!')
             exit()
         elif user_input == '/help':
-            print('A bit of a smart calculator')
+            print('Calculator with variables support')
             continue
         elif user_input.startswith('/'):
             print('Unknown command')
