@@ -1,16 +1,20 @@
 from collections import deque
 from string import ascii_letters, digits
-
+from re import fullmatch
 
 class Calc:
     operands = ascii_letters + digits
+    operators = {'+': 1, '-': 1, '*': 2, '/': 2, '(': 0, ')': 0}
     variables = {}
 
     def calc(self, raw_input):
         user_input = self.prepare_expression(raw_input)
         if not user_input:
             return False
+        # user_input = ''.join(x if x in Calc.operands else f' {x} ' for x in raw_input).split()
         rpn = self.convert_to_rpn(user_input)
+        if not rpn:
+            return False
         stack = deque()
         for i in rpn:
             if i[0] in digits or (i[0] == '-' and len(i) > 1):
@@ -30,21 +34,19 @@ class Calc:
                 stack.append(result)
         print(stack[-1])
 
-    # Reverse Polish notation (RPN)
-    @staticmethod
-    def convert_to_rpn(user_input):
-        operators = {'+': 1, '-': 1, '*': 2, '/': 2, '(': 0, ')': 0}
+    # Reverse Polish notation (postfix)
+    def convert_to_rpn(self, user_input):
         stack, result = deque(), deque()
 
         for i in user_input:
-            if i[0] in Calc.operands:
+            if i[0] in self.operands:
                 result.append(i)
             elif not stack or stack[-1] == '(':
                 stack.append(i)
-            elif operators[i] > operators[stack[-1]]:
+            elif self.operators[i] > self.operators[stack[-1]]:
                 stack.append(i)
-            elif i in list(operators.keys())[:4] and operators[i] <= operators[stack[-1]]:
-                while stack and stack[-1] != '(' and operators[i] <= operators[stack[-1]]:
+            elif i in list(self.operators.keys())[:4] and self.operators[i] <= self.operators[stack[-1]]:
+                while stack and stack[-1] != '(' and self.operators[i] <= self.operators[stack[-1]]:
                     result.append(stack.pop())
                 stack.append(i)
             elif i == '(':
@@ -55,8 +57,8 @@ class Calc:
                 stack.pop()
         for i in range(len(stack)):
             if stack[-1] in ')(':
-                print('Syntax error')
-                exit()
+                print('Invalid expression')
+                return False
             result.append(stack.pop())
         return result
 
@@ -73,17 +75,32 @@ class Calc:
         self.variables[var] = val if val.isnumeric() else self.variables.get(val)
 
     def prepare_expression(self, raw_input):
-        if raw_input.find('//') != -1 or raw_input.find('**') != -1:
+        filler = self.operands + '+-*/'
+        stack = deque()
+        user_input = ''.join(x if x in filler else f' {x} ' for x in raw_input).split()
+        if user_input.count('(') != user_input.count(')'):
             print('Invalid expression')
             return False
+        for val in user_input:
+            if fullmatch(r'-\d+', val):
+                stack.extend(('(', '0', '-', val[1:], ')'))
+            elif val.startswith('++'):
+                stack.append('+')
+            elif val.startswith('--'):
+                stack.append('-') if len(val) % 2 !=0 else stack.append('+')
+            elif val.startswith('**'):
+                print('Invalid expression')
+                return False
+            elif val.startswith('//'):
+                print('Invalid expression')
+                return False
+            elif val.isalpha() and val not in self.variables:
+                print('Unknown variable')
+                return False
+            else:
+                stack.append(val)
 
-        user_input = ''.join(x if x in Calc.operands else f' {x} ' for x in raw_input).split()
-
-        if not user_input[0].isalpha() and not user_input[0].isnumeric():
-            print('Invalid identifier')
-            return False
-
-        return user_input
+        return stack
 
 
 def main():
